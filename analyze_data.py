@@ -77,23 +77,6 @@ def percent_id(anno):
     avg = sum(all_sim)/len(all_sim)
     return avg, new_annos
 
-def create_seq_dic(sequnce_file_dir):
-    """creates the sequnce dic"""
-    seq_dic = {}
-    for sequnce_file in os.listdir(sequnce_file_dir):
-        for line in open("{0}/{1}".format(sequnce_file_dir,sequnce_file)):
-            if '>' in line:
-                line_name = line.split(' ')[0]
-                list_name = line_name[1:].strip().split('-')
-                genome_id = '-'.join(list_name[:-1])
-                i = int(list_name[-1])
-                genome_key = "{0}_{1}".format(genome_id,str(i))
-                seq_dic[genome_key] = ''
-            elif len(line) > 1:
-                seq_dic[genome_key] += line.strip()
-            else: continue
-    return seq_dic
-
 def get_cluster_seq(seq_dic,genome_id,i,cluster_seq_out):
     """seq write outfile"""
     outfh = cluster_seq_out
@@ -123,18 +106,12 @@ class cluster_line(object):
         self.cluster_number = i
 
 
-def main(cluster_dir,sequnce_file_dir):
+def analyze(cluster_dir,all_clades):
     """creates a summary file for each cluster file """
-    seq_dic = create_seq_dic(sequnce_file_dir)
     summary_file = open("cluster_sum_file_new_st.txt","wb")
     header = "##cluster_number\ttotal_in_cluster\tnumber_of_genomes\tavg_number\tsimilarity\ttop_three\n"
     summary_file.write(header)
     clade_file = open("clade_sum_st.txt","wb")
-    all_clades = ['Halalkalicoccus','Haloarcula','Halobacterium','Halobiforma','Halococcus','Haloferax','Halogeometricum','Halomicrobium','Halopiger',
-                'Haloquadratum','Halorhabdus','Halorubrum', 'Halosarcina' ,
-                'Halosimplex', 'Haloterrigena', 'Halovivax', 'Natrialba', 'Natrinema',
-                'Natronobacterium', 'Natronococcus', 'Natronolimnobius',
-                'Natronomonas', 'Natronorubrum']
     header = 'cluster\tseen in genome\t{0}\n'.format('\t'.join(all_clades))
     clade_file.write(header)
     
@@ -145,14 +122,14 @@ def main(cluster_dir,sequnce_file_dir):
         genome_cnt = Counter()
         clades = Counter()
         anno_list = []
-        cluster_seq_out = open("protein_seq_{0}.fasta".format(cluster_number),'wb')
+        #cluster_seq_out = open("protein_seq_{0}.fasta".format(cluster_number),'wb')
         for line in open("{0}/{1}".format(cluster_dir,cluster_file)):
             cluster = cluster_line(line)
             clades[cluster.clade_name] += 1
             genome_cnt[cluster.genome] += 1
             anno_list.append(cluster.anno)
-            get_cluster_seq(seq_dic,cluster.genome,cluster.cluster_number,cluster_seq_out)
-        cluster_seq_out.close()
+        #    get_cluster_seq(seq_dic,cluster.genome,cluster.cluster_number,cluster_seq_out)
+        #cluster_seq_out.close()
         
         if len(anno_list) == 1: continue
         anno_similarity,anno_cnt = percent_id(anno_list)
@@ -168,7 +145,6 @@ def main(cluster_dir,sequnce_file_dir):
                 clade_list.append(str(col))
             else:
                 clade_list.append('0')
-        print clade_list
         
         clade_file_line = "{0}\n".format('\t'.join(clade_list))
         clade_file.write(clade_file_line)
@@ -178,13 +154,21 @@ def main(cluster_dir,sequnce_file_dir):
 if __name__ == "__main__":
     import optparse
     parser = optparse.OptionParser("usage: %prog [options] ")
-    parser.add_option("-q", dest="qfasta", help="path to genomic query fasta")
+    #parser.add_option("-q", dest="qfasta", help="path to genomic query fasta")
+    parser.add_option("--cluster", dest="cluster_data", help="path to cluster_data_dir")
+    (options, _) = parser.parse_args()
 
+    
+    all_clades = ['Halalkalicoccus','Haloarcula','Halobacterium','Halobiforma','Halococcus','Haloferax','Halogeometricum','Halomicrobium','Halopiger',
+                'Haloquadratum','Halorhabdus','Halorubrum', 'Halosarcina' ,
+                'Halosimplex', 'Haloterrigena', 'Halovivax', 'Natrialba', 'Natrinema',
+                'Natronobacterium', 'Natronococcus', 'Natronolimnobius',
+                'Natronomonas', 'Natronorubrum']
+    
+    analyze(options.cluster_data,all_clades)
 
-
-
-main('/Users/gt/Documents/code/eisen_fac/cluster_data/','/Users/gt/Dropbox/EightyHalophilesData/TranslationSequences_onlyCode/')
-
+#analyze('/Users/gt/Documents/code/eisen_fac/cluster_data/','/Users/gt/Dropbox/EightyHalophilesData/TranslationSequences_onlyCode/')
+#
 
 
 
