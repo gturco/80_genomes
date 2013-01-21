@@ -4,7 +4,10 @@ from collections import defaultdict
 
 def main(cluster_dir,pad):
     out_fh = open("cluster_dups.txt",'wb')
+    header = "cluster\tlocal_dups\t cluster_total\n"
+    out_fh.write(header)
     for cluster_file in os.listdir(cluster_dir):
+        if cluster_file == "cluster_sum": continue
         cluster_number = cluster_file.split("_")[0]
         cluster_dic = parse_cluster_file("{0}/{1}".format(cluster_dir,cluster_file),pad)
         #print cluster_number
@@ -73,7 +76,7 @@ if __name__ == "__main__":
     (options, _) = parser.parse_args()
 
 
-    main(options.cluster_data,options.padding)
+    main(options.cluster_data,int(options.padding))
 
 #main("/Users/gt/Documents/code/eisen_fac/cluster_data/",2000)
 #python find_local_dups --cluster "cluster_data/" --pad 2000
