@@ -1,3 +1,9 @@
+######### searches annotation files for a term/regex expression
+######### returns protein cluster files that contain term along 
+######### with any additional terms for that cluster. Links cluster
+######### data with annotation data in cluster dir files.
+
+
 from collections import defaultdict
 import re
 import os
