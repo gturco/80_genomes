@@ -7,7 +7,7 @@ def main(cluster_dir,pad):
     for cluster_file in os.listdir(cluster_dir):
         cluster_number = cluster_file.split("_")[0]
         cluster_dic = parse_cluster_file("{0}/{1}".format(cluster_dir,cluster_file),pad)
-        print cluster_number
+        #print cluster_number
         cluster_total, cluster_overlap = count_clusters(cluster_dic)
         out_fh.write("{0}\t{1}\t{2}\n".format(cluster_number,cluster_overlap,cluster_total))
     out_fh.close()
@@ -43,7 +43,7 @@ def count_overlap(genome_list):
         overlap = map(find,genome_list,y)
         if 1 < sum(overlap):
             match_cnt += 1
-            print overlap, genome_list,y
+            #print overlap, genome_list,y
     return match_cnt
 
 def parse_cluster_file(cluster_file,pad):
@@ -65,5 +65,16 @@ def parse_cluster_file(cluster_file,pad):
         cluster_dic[key].append((max(0,start-pad),end+pad))
     return cluster_dic
 
-main("/Users/gt/Documents/code/eisen_fac/cluster_data/",2000)
+if __name__ == "__main__":
+    import optparse
+    parser = optparse.OptionParser("usage: %prog [options] ")
+    parser.add_option("--cluster", dest="cluster_data", help="path to cluster_data_dir")
+    parser.add_option("--pad", dest="padding", default=2000, help="bps to look up and downstream gene for local dups")
+    (options, _) = parser.parse_args()
+
+
+    main(options.cluster_data,options.padding)
+
+#main("/Users/gt/Documents/code/eisen_fac/cluster_data/",2000)
+#python find_local_dups --cluster "cluster_data/" --pad 2000
 
