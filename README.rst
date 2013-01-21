@@ -29,9 +29,9 @@ Example::
   python create_cluster_files.py --term 'signal transduction' --cluster /EightyHalophiles/FilteredHomology/HomologyClusters_I20.txt --anno /EightyHalophiles/Annotations/
 
 
---term grabs all annotations containing this term
---cluster path to cluster file
---anno directory containing annotation files
+- --term grabs all annotations containing this term
+- --cluster path to cluster file
+- --anno directory containing annotation files
 
 
 find_local_dups.py
@@ -46,7 +46,7 @@ Example::
 
   python find_local_dups.py --cluster "cluster_data/" --pad 2000
 
---cluster: path to cluster_data dir
---pad bps to look up and downstream gene for local dups
+- --cluster: path to cluster_data dir
+- --pad bps to look up and downstream gene for local dups
 
 
