@@ -26,9 +26,11 @@ import re
 #    listof most common words (have)
 #    % of time seen, word
 
-def write_cluster_summary(cluster_number,genome_cnt,anno_cnt,anno_similarity):
+def write_cluster_summary(new_dir,cluster_number,genome_cnt,anno_cnt,anno_similarity):
     """write summary of information for each cluster"""
-    out_fh = open("cluster_sum/{0}_cluster_summary".format(cluster_number),"wb")
+    if not os.path.exists("{0}/cluster_sum/".format(new_dir)):
+        os.makedirs("{0}/cluster_sum/".format(new_dir))
+    out_fh = open("{1}/cluster_sum/{0}_cluster_summary".format(cluster_number,new_dir),"wb")
     total = sum(genome_cnt.values())
     avg_number = float(total)/(len(genome_cnt.keys()))
     genome_header = "seen in {0} of 80 genomes\n\n\n".format(len(genome_cnt.keys()))
@@ -38,7 +40,6 @@ def write_cluster_summary(cluster_number,genome_cnt,anno_cnt,anno_similarity):
         out_fh.write(genome_line)
     anno_header = "\n\n\nAnnotations are {0} % similar\n\n\n".format(anno_similarity)
     out_fh.write(anno_header)
-    print anno_cnt
     top_five = set(anno_cnt)
     #top_five = ["{0}:{1}".format(key,value) for (key,value) in anno_cnt.most_common(3)]
     for anno in anno_cnt:
@@ -108,16 +109,17 @@ class cluster_line(object):
 
 def analyze(cluster_dir,all_clades):
     """creates a summary file for each cluster file """
-    summary_file = open("cluster_sum_file_new_st.txt","wb")
+    summary_file = open("cluster_summary.txt","wb")
     header = "##cluster_number\ttotal_in_cluster\tnumber_of_genomes\tavg_number\tsimilarity\ttop_three\n"
     summary_file.write(header)
-    clade_file = open("clade_sum_st.txt","wb")
+    clade_file = open("clade_summary.txt","wb")
     header = 'cluster\tseen in genome\t{0}\n'.format('\t'.join(all_clades))
     clade_file.write(header)
     
     ### ALL NEW FiLES ####
     
     for cluster_file in os.listdir(cluster_dir):
+        if cluster_file == "cluster_sum": continue
         cluster_number = cluster_file.strip('_anno_cluster.txt')
         genome_cnt = Counter()
         clades = Counter()
@@ -134,7 +136,7 @@ def analyze(cluster_dir,all_clades):
         if len(anno_list) == 1: continue
         anno_similarity,anno_cnt = percent_id(anno_list)
         #anno_cnt = count_anno(anno_list)
-        total, avg_number, top_five = write_cluster_summary(cluster_number,genome_cnt,anno_cnt,anno_similarity)
+        total, avg_number, top_five = write_cluster_summary(cluster_dir,cluster_number,genome_cnt,anno_cnt,anno_similarity)
         summary_file_line = "{0}\t{1}\t{2}\t{3}\t{4}\t{5}\n".format(cluster_number,total,len(genome_cnt.keys()),avg_number,anno_similarity,top_five)
         summary_file.write(summary_file_line)
         

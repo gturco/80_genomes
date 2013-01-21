@@ -5,6 +5,7 @@
 
 
 from collections import defaultdict
+from analyze_data import analyze
 import re
 import os
 import sys
@@ -57,13 +58,13 @@ class ClusterLine(object):
         self.anno = create_anno_dic(self.genome_id, genome_fh)
         genome_fh.close()
  
-def write_cluster_files(term,cluster,master_anno):
+def write_cluster_files(new_dir,term,cluster,master_anno):
    """joins annno and clusters to write each cluster to a summary file"""
    clust_anno = join_dics(cluster,master_anno)
    for cluster_number in clust_anno.keys():
        anno_list = [a.upper() for (g,a,i) in clust_anno[cluster_number]]
        if term.upper() not in ','.join(anno_list): continue
-       out_fh = open("cluster_data/{0}_anno_cluster.txt".format(cluster_number),'wb')
+       out_fh = open("{0}/{1}_anno_cluster.txt".format(new_dir,cluster_number),'wb')
        for (gene, gene_anno, i) in clust_anno[cluster_number]:
            line = "{0}\t{1}\t{2}\n".format(gene,i,gene_anno)
            out_fh.write(line)
@@ -71,18 +72,21 @@ def write_cluster_files(term,cluster,master_anno):
 
    
 
-def main(term,cluster_file,dirc):
+def main(term,cluster_file,dirc,all_clades):
     """opens annoation dir and cluster file and joins two files to dic """
     cluster = create_cluster_dic(cluster_file)
     master_anno = {}
+    new_dir = "cluster_data_" + term.replace(" ","_")
+    if not os.path.exists(new_dir):
+        os.makedirs(new_dir)
     for current_file in os.listdir(dirc):
         print >>sys.stderr, "Opening .... {0}".format(current_file)
         c = ClusterLine(dirc,current_file)
         master_anno = dict(master_anno.items() + c.anno.items())
         ### adds annos to masteranno list for each genome
     #### write to file
-    write_cluster_files(term,cluster,master_anno)
-
+    write_cluster_files(new_dir,term,cluster,master_anno)
+    analyze(new_dir,all_clades)
 
 if __name__ == "__main__":
     import optparse
@@ -92,7 +96,13 @@ if __name__ == "__main__":
     parser.add_option("--anno", dest="anno_dir", help="directory containing annoation files")
     (options, _) = parser.parse_args()
 
-    main(options.term, options.cluster_file, options.anno_dir)
+    all_clades = ['Halalkalicoccus','Haloarcula','Halobacterium','Halobiforma','Halococcus','Haloferax','Halogeometricum','Halomicrobium','Halopiger',
+                 'Haloquadratum','Halorhabdus','Halorubrum', 'Halosarcina' ,
+                 'Halosimplex', 'Haloterrigena', 'Halovivax', 'Natrialba','Natrinema',
+                 'Natronobacterium', 'Natronococcus', 'Natronolimnobius',
+                 'Natronomonas', 'Natronorubrum']
+
+    main(options.term, options.cluster_file, options.anno_dir, all_clades)
 
 
 
