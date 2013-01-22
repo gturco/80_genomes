@@ -1,7 +1,7 @@
 80 genomes
 ==============
-Python programs written to find gene loss and gain between genomes
-
+Python programs written to find gene loss and gain between genomes.
+Created in the `Eisen <http://phylogenomics.wordpress.com/>`_ and `Facciotti <http://www.bme.ucdavis.edu/facciotti/>`_ Lab at UC Davis
 
 Requirements
 ==============
